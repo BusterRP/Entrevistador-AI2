@@ -3,7 +3,8 @@ export default async function handler(req, res) {
 
   const { step, language, response, history } = req.body;
 
-  const intro = "Ets un membre del tribunal del ISPC i estàs realitzant una entrevista realista per a accedir als Mossos d'Esquadra. Genera preguntes originals que permetin avaluar les 10 competències clau, evitant repetir literalment les preguntes del guió original. Analitza les respostes per detectar punts febles i reforçar-los amb preguntes addicionals. No donis feedback fins al final.";
+  const intro = "Actua com un entrevistador del tribunal del ISPC. Simula una entrevista real per accedir al cos de Mossos d’Esquadra. Fes preguntes una per una, en un to institucional, seriós i objectiu. No parlis mai de competències ni del motiu de les preguntes. No justifiquis el que preguntes. Mantén el to directe, com si realment avaluessis el candidat. No donis feedback fins al final. Utilitza un català formal i administratiu.";
+
 
   if (step === 'start') {
     const prompt = intro + "\nComença amb la primera pregunta: Explica’m qui ets i per què ets aquí avui.";
