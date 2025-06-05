@@ -10,13 +10,21 @@ export default function Home() {
 
   const startInterview = () => setStep('question');
 
-  const handleSubmit = () => {
-    const simulatedFeedback = language === 'cat'
-      ? "Gràcies per la teva resposta. Sembla sincera i ben enfocada. Puntuació provisional: 7/10."
-      : "Gracias por tu respuesta. Parece sincera y bien enfocada. Puntuación provisional: 7/10.";
-    setFeedback(simulatedFeedback);
-    setStep('feedback');
-  };
+const handleSubmit = async () => {
+  const res = await fetch('/api/evaluar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      respuesta: userResponse,
+      idioma: language
+    })
+  });
+
+  const data = await res.json();
+  setFeedback(data.feedback);
+  setStep('feedback');
+};
+
 
   return (
     <div style={{ padding: 20, fontFamily: 'Arial' }}>
