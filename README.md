@@ -1,3 +1,1 @@
-# Entrevistador AI
-
-Simulador de entrevistas estilo Mossos d'Esquadra.
+# Entrevistador AI\n\nSimulador adaptatiu d'entrevistes per Mossos d'Esquadra amb GPT-4.\n

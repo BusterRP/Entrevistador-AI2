@@ -3,28 +3,47 @@ import { useState } from 'react';
 export default function Home() {
   const [step, setStep] = useState('start');
   const [language, setLanguage] = useState('');
-  const [inputMode, setInputMode] = useState('text');
-  const [outputMode, setOutputMode] = useState('text');
-  const [userResponse, setUserResponse] = useState('');
+  const [question, setQuestion] = useState('');
+  const [response, setResponse] = useState('');
   const [feedback, setFeedback] = useState('');
+  const [history, setHistory] = useState([]);
 
-  const startInterview = () => setStep('question');
+  const startInterview = async () => {
+    const res = await fetch('/api/entrevista', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        step: 'start',
+        language
+      })
+    });
+    const data = await res.json();
+    setQuestion(data.question);
+    setStep('interview');
+  };
 
-const handleSubmit = async () => {
-  const res = await fetch('/api/evaluar', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      respuesta: userResponse,
-      idioma: language
-    })
-  });
-
-  const data = await res.json();
-  setFeedback(data.feedback);
-  setStep('feedback');
-};
-
+  const submitResponse = async () => {
+    const newHistory = [...history, { question, response }];
+    const res = await fetch('/api/entrevista', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        step: 'continue',
+        language,
+        response,
+        history: newHistory
+      })
+    });
+    const data = await res.json();
+    if (data.done) {
+      setFeedback(data.feedback);
+      setStep('done');
+    } else {
+      setQuestion(data.question);
+      setHistory(newHistory);
+      setResponse('');
+    }
+  };
 
   return (
     <div style={{ padding: 20, fontFamily: 'Arial' }}>
@@ -32,44 +51,32 @@ const handleSubmit = async () => {
 
       {step === 'start' && (
         <>
-          <p>Selecciona el idioma:</p>
+          <p>Selecciona l'idioma de l'entrevista:</p>
           <button onClick={() => setLanguage('cat')}>Català</button>
           <button onClick={() => setLanguage('esp')}>Castellano</button>
-
-          <p>Forma de resposta:</p>
-          <button onClick={() => setInputMode('text')}>Text</button>
-          <button onClick={() => setInputMode('voice')}>Voz</button>
-
-          <p>Resposta de l'entrevistador:</p>
-          <button onClick={() => setOutputMode('text')}>Text</button>
-          <button onClick={() => setOutputMode('voice')}>Voz</button>
-
           <br /><br />
           <button onClick={startInterview}>Començar entrevista</button>
         </>
       )}
 
-      {step === 'question' && (
+      {step === 'interview' && (
         <>
-          <p><strong>{language === 'cat'
-            ? "Explica’m qui ets i per què ets aquí avui."
-            : "Explícame quién eres y por qué estás aquí hoy."}</strong></p>
+          <p><strong>{question}</strong></p>
           <textarea
             rows={4}
             style={{ width: '100%' }}
-            value={userResponse}
-            onChange={(e) => setUserResponse(e.target.value)}
+            value={response}
+            onChange={(e) => setResponse(e.target.value)}
           />
           <br />
-          <button onClick={handleSubmit}>Enviar resposta</button>
+          <button onClick={submitResponse}>Enviar resposta</button>
         </>
       )}
 
-      {step === 'feedback' && (
+      {step === 'done' && (
         <>
-          <p><strong>Feedback inicial:</strong></p>
+          <p><strong>Veredicte final:</strong></p>
           <p>{feedback}</p>
-          <p>Per continuar amb l'entrevista completa, cal fer el pagament.</p>
         </>
       )}
     </div>
